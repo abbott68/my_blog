@@ -22,22 +22,26 @@
       background-color: #333;
       color: #fff;
       padding: 10px;
+      margin-bottom: 20px;
+      text-align: center;
     }
 
     h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 28px;
     }
 
     nav {
       background-color: #eee;
       padding: 10px;
+      margin-bottom: 20px;
     }
 
     nav ul {
       margin: 0;
       padding: 0;
       list-style-type: none;
+      text-align: center;
     }
 
     nav ul li {
@@ -75,11 +79,20 @@
 
     h2 {
       margin-top: 0;
+      margin-bottom: 10px;
     }
 
     p {
       margin: 0;
       line-height: 1.5;
+    }
+
+    .login-btn {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
     }
   </style>
 </head>
@@ -97,10 +110,14 @@
       <li><a href="/create">Create new post</a></li>
       {{if not .IsLogin}}
       <li><a href="/register">Register</a></li>
-      <li><a href="/login">Login</a></li>
-      {{else}}
-      <li><a href="/logout">Logout</a></li>
       {{end}}
+      <li>
+        {{if not .IsLogin}}
+        <a href="/login" class="login-btn">Login</a>
+        {{else}}
+        <a href="/logout" class="login-btn">Logout</a>
+        {{end}}
+      </li>
     </ul>
   </div>
 </nav>
@@ -114,16 +131,11 @@
 
 <section class="posts-list">
   <div class="container">
-    <h2>Recent Blog Posts</h2>
-    {{range .BlogPosts}}
+    <h2>Blog Posts</h2>
+    {{range .}}
     <div class="post">
       <h3>{{.Title}}</h3>
       <p>{{.Content}}</p>
-      {{if .User.IsLogin}}
-      <p>Is Login: Yes</p>
-      {{else}}
-      <p>Is Login: No</p>
-      {{end}}
     </div>
     {{end}}
   </div>

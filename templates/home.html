@@ -23,20 +23,17 @@
 
 <div class="posts-list">
     <h1>Blog Posts</h1>
-    {{range .}}
+    {{range .BlogPosts}}
     <div class="post">
-        <h2><a href="/post/{{.ID}}">{{.Title}}</a></h2>
+        <h2>{{.Title}}</h2>
         <p>{{.Content}}</p>
-        <p>
-            {{if .User.IsLogin}}
-            <a href="/logout">Logout</a>
-            {{else}}
-            <a href="/login">Login</a>
-            {{end}}
-        </p>
+        {{if .User.IsLogin}}
+        <p>Is Login: Yes</p>
+        {{else}}
+        <p>Is Login: No</p>
+        {{end}}
     </div>
     {{end}}
 </div>
 </body>
 </html>
-

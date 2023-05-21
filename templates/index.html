@@ -2,101 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Blog - Home</title>
-  <!-- Link to your CSS framework -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-GgOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <!-- Link to your own CSS file -->
-  <link rel="stylesheet" href="styles.css">
+  <title>Welcome to My Blog</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    nav {
+      background-color: #eee;
+      padding: 10px;
+    }
+
+    nav ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+    }
+
+    nav ul li {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #333;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .welcome {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .posts-list {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .post {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
-<!-- Navigation bar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#">My Blog</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">About</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Contact</a>
-      </li>
+<header>
+  <div class="container">
+    <h1>Welcome to My Blog</h1>
+  </div>
+</header>
+
+<nav>
+  <div class="container">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/create">Create new post</a></li>
+      {{if not .IsLogin}}
+      <li><a href="/register">Register</a></li>
+      <li><a href="/login">Login</a></li>
+      {{else}}
+      <li><a href="/logout">Logout</a></li>
+      {{end}}
     </ul>
   </div>
 </nav>
 
-<!-- Main content section -->
-<div class="container">
-  <h1>Welcome to My Blog</h1>
-  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-
-  <h2>Latest Posts</h2>
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card mb-4 shadow-sm">
-        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Post Title</h5>
-          <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="btn-group">
-              <a href="#" class="btn btn-sm btn-outline-secondary">Read More</a>
-            </div>
-            <small class="text-muted">3 mins</small>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card mb-4 shadow-sm">
-        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Post Title</h5>
-          <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="btn-group">
-              <a href="#" class="btn btn-sm btn-outline-secondary">Read More</a>
-            </div>
-            <small class="text-muted">5 mins</small>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card mb-4 shadow-sm">
-        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Post Title</h5>
-          <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="btn-group">
-              <a href="#" class="btn btn-sm btn-outline-secondary">Read More</a>
-            </div>
-            <small class="text-muted">10 mins</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Footer section -->
-<footer class="bg-light py-3">
+<section class="welcome">
   <div class="container">
-    <span>&copy; My Blog 2021</span>
+    <h2>Welcome to My Blog</h2>
+    <p>Explore the latest blog posts and share your own stories.</p>
   </div>
-</footer>
+</section>
 
-<!-- Link to Bootstrap JS (optional) -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOUAzl0enZu91UHbByh2xk5/sEhhUO99s+8hBquKf1Qqo4M" crossorigin="anonymous"></script>
+<section class="posts-list">
+  <div class="container">
+    <h2>Recent Blog Posts</h2>
+    {{range .BlogPosts}}
+    <div class="post">
+      <h3>{{.Title}}</h3>
+      <p>{{.Content}}</p>
+      {{if .User.IsLogin}}
+      <p>Is Login: Yes</p>
+      {{else}}
+      <p>Is Login: No</p>
+      {{end}}
+    </div>
+    {{end}}
+  </div>
+</section>
+
 </body>
 </html>

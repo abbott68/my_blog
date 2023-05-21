@@ -1,25 +1,71 @@
-/* My Blog stylesheet */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
 
-h1 {
-    color: blue;
+nav {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.welcome {
+    background-color: #f4f4f4;
+    padding: 20px;
+    text-align: center;
+}
+
+.welcome h1 {
+    color: #333;
+}
+
+.welcome p {
+    color: #555;
+}
+
+.posts-list {
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.posts-list h2 {
+    color: #333;
+    margin-bottom: 10px;
 }
 
 .post {
-    border: 1px solid black;
-    padding: 10px;
     margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
 }
 
-label {
-    display: block;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-input[type="text"],
-input[type="password"] {
-    width: 200px;
-    padding: 5px;
-    margin-top: 5px;
+.post h3 {
+    color: #333;
     margin-bottom: 10px;
+}
+
+.post p {
+    color: #555;
+}
+
+.post p:last-child {
+    margin-bottom: 0;
 }

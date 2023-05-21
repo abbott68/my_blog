@@ -73,14 +73,12 @@ var blogPosts = []BlogPost{
 
 // 主页处理函数
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	// 使用模板渲染主页
 	rows, err := db.Query("SELECT * FROM blog_posts")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 
-	// 构建博客文章列表
 	blogPosts := []BlogPost{}
 	for rows.Next() {
 		post := BlogPost{}
@@ -90,17 +88,25 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		blogPosts = append(blogPosts, post)
 	}
-	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+
+	for i := range blogPosts {
+		blogPosts[i].User = &User{IsLogin: true}
 	}
 
-	// 使用模板渲染主页
 	tmpl, err := template.ParseFiles("templates/home.html")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = tmpl.Execute(w, blogPosts)
+	data := struct {
+		BlogPosts []BlogPost
+		IsLogin   bool
+	}{
+		BlogPosts: blogPosts,
+		IsLogin:   true, // Set the value based on the user's login status
+	}
+
+	err = tmpl.ExecuteTemplate(w, "home.html", data)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -124,13 +130,11 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	content := r.FormValue("content")
 
-	// 将文章信息插入数据库
 	_, err := db.Exec("INSERT INTO blog_posts (title, content) VALUES (?, ?)", title, content)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 重定向到主页
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -149,22 +153,18 @@ func registerPageHandler(w http.ResponseWriter, r *http.Request) {
 
 // 用户注册处理函数
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-	// 获取注册表单提交的数据
 	username := r.FormValue("username")
 	rawPassword := r.FormValue("password")
 
-	// 对密码进行哈希处理
 	hasher := sha256.New()
 	hasher.Write([]byte(rawPassword))
 	passwordHash := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 
-	// 将用户信息插入数据库
 	_, err := db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, passwordHash)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 重定向到主页
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -186,7 +186,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	rawPassword := r.FormValue("password")
 
-	// 查询数据库中是否有该用户
 	var dbUser User
 	err := db.QueryRow("SELECT * FROM users WHERE username=?", username).Scan(&dbUser.ID, &dbUser.Username, &dbUser.Password)
 	if err != nil {
@@ -195,24 +194,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 对密码进行哈希处理并与数据库中的密码进行比对
 	hasher := sha256.New()
 	hasher.Write([]byte(rawPassword))
 	passwordHash := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 
 	if dbUser.Password == passwordHash {
-		// 用户名和密码验证成功，设置Cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:  "user",
 			Value: dbUser.Username,
 			Path:  "/",
 		})
-		// 设置 IsLogin 为 true
 		dbUser.IsLogin = true
-		// 登录成功，重定向到主页
 		http.Redirect(w, r, "/", http.StatusFound)
 	} else {
-		// 用户名或密码验证失败，重新显示登录页面
 		tmpl, err := template.ParseFiles("templates/login.html")
 		if err != nil {
 			log.Fatal(err)
@@ -223,14 +217,24 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
-	// 初始化数据库连接
 	initDB()
 	defer db.Close()
 
-	// 设置路由和处理函数
-	http.HandleFunc("/", homeHandler)
+	//http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/create", createPageHandler)
 	http.HandleFunc("/create/post", createHandler)
 	http.HandleFunc("/register", registerPageHandler)
@@ -238,11 +242,9 @@ func main() {
 	http.HandleFunc("/login", loginPageHandler)
 	http.HandleFunc("/login/auth", loginHandler)
 
-	// 设置静态文件服务器
 	fs := http.FileServer(http.Dir("."))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// 启动Web服务器
 	fmt.Println("Server listening on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

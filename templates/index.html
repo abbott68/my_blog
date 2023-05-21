@@ -94,6 +94,68 @@
       border-radius: 5px;
       text-decoration: none;
     }
+
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .form-container input[type="text"],
+    .form-container textarea,
+    .form-container input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical;
+    }
+
+    .form-container input[type="submit"] {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .form-container input[type="submit"]:hover {
+      background-color: #555
+
+    ;
+    }
+
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .email-container h3 {
+      margin-top: 0;
+    }
+
+    .email-container p {
+      margin-bottom: 10px;
+    }
+
+    .email-container p:last-child {
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body>
@@ -106,10 +168,16 @@
 <nav>
   <div class="container">
     <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/create">Create new post</a></li>
+      <li>
+        <a href="/home">Home</a>
+      </li>
+      <li>
+        <a href="/create">Create new post</a>
+      </li>
       {{if not .IsLogin}}
-      <li><a href="/register">Register</a></li>
+      <li>
+        <a href="/register">Register</a>
+      </li>
       {{end}}
       <li>
         {{if not .IsLogin}}
@@ -129,6 +197,34 @@
   </div>
 </section>
 
+<section class="form-container">
+  <div class="container">
+    <h2>Create a New Blog Post</h2>
+    <form action="/create" method="post">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" required>
+
+      <label for="content">Content:</label>
+      <textarea id="content" name="content" rows="6" required></textarea>
+
+      <input type="submit" value="Submit">
+    </form>
+  </div>
+</section>
+
+<section class="email-container">
+  <div class="container">
+    <h3>Subscribe to Our Newsletter</h3>
+    <p>Stay updated with the latest blog posts and news.</p>
+    <form action="/subscribe" method="post">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+
+      <input type="submit" value="Subscribe">
+    </form>
+  </div>
+</section>
+
 <section class="posts-list">
   <div class="container">
     <h2>Blog Posts</h2>
@@ -140,6 +236,5 @@
     {{end}}
   </div>
 </section>
-
 </body>
 </html>

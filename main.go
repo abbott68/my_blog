@@ -8,11 +8,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/smtp"
 
-	_ "github.com/go-sql-driver/mysql" // 导入MySQL数据库驱动
+	_ "github.com/go-sql-driver/mysql"
 )
 
-// 博客文章结构体
 type BlogPost struct {
 	ID      int
 	Title   string
@@ -20,29 +20,30 @@ type BlogPost struct {
 	User    *User
 	IsLogin bool
 }
-type BlogPosts []BlogPost
 
-// 用户结构体
 type User struct {
 	ID       int
 	Username string
 	Password string
-	IsLogin  bool // 新增的 IsLogin 字段
+	IsLogin  bool
 }
 
-var db *sql.DB // 全局数据库连接对象
+type Comment struct {
+	ID      int
+	PostID  int
+	Content string
+}
+
+var db *sql.DB
 
 func initDB() {
-	// 连接数据库
 	database, err := sql.Open("mysql", "dev:dev123456@tcp(81.70.196.2:3306)/blog_db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 设置全局数据库连接对象
 	db = database
 
-	// 创建博客文章表
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS blog_posts (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
@@ -52,7 +53,6 @@ func initDB() {
 		log.Fatal(err)
 	}
 
-	// 创建用户表
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
@@ -62,16 +62,17 @@ func initDB() {
 		log.Fatal(err)
 	}
 
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        post_id INT,
+        content TEXT,
+        FOREIGN KEY (post_id) REFERENCES blog_posts(id)
+    )`)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-// 博客文章列表
-var blogPosts = []BlogPost{
-	{Title: "Blog Post 1", Content: "This is the content of Blog Post 1."},
-	{Title: "Blog Post 2", Content: "This is the content of Blog Post 2."},
-	{Title: "Blog Post 3", Content: "This is the content of Blog Post 3."},
-}
-
-// 主页处理函数
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query("SELECT * FROM blog_posts")
 	if err != nil {
@@ -103,7 +104,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		IsLogin   bool
 	}{
 		BlogPosts: blogPosts,
-		IsLogin:   true, // Set the value based on the user's login status
+		IsLogin:   true,
 	}
 
 	err = tmpl.ExecuteTemplate(w, "home.html", data)
@@ -112,7 +113,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// 创建文章页面显示处理函数
 func createPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/create.html")
 	if err != nil {
@@ -125,7 +125,6 @@ func createPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// 创建文章处理函数
 func createHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	content := r.FormValue("content")
@@ -138,7 +137,6 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// 用户注册页面显示处理函数
 func registerPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/register.html")
 	if err != nil {
@@ -229,18 +227,81 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// 发布博客页面显示处理函数
+func publishPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/publish.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tmpl.Execute(w, "")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// 发布博客处理函数
+func publishHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.FormValue("title")
+	content := r.FormValue("content")
+
+	_, err := db.Exec("INSERT INTO blog_posts (title, content) VALUES (?, ?)", title, content)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func commentHandler(w http.ResponseWriter, r *http.Request) {
+	postID := r.FormValue("postID")
+	content := r.FormValue("content")
+	_, err := db.Exec("INSERT INTO comments (post_id, content) VALUES (?, ?)", postID, content)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 发送邮件通知评论
+	sendEmailNotification(postID, content)
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+func sendEmailNotification(postID, commentContent string) {
+	// 邮件配置
+	smtpHost := "smtp.example.com"
+	smtpPort := "587"
+	smtpUsername := "your-email@example.com"
+	smtpPassword := "your-password"
+	// 构建邮件内容
+	to := "recipient@example.com"
+	subject := "New Comment on Post #" + postID
+	body := "A new comment has been posted on post #" + postID + ":\n\n" + commentContent
+
+	// 发送邮件
+	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, smtpUsername, []string{to}, []byte("Subject: "+subject+"\r\n\r\n"+body))
+	if err != nil {
+		log.Println("邮件发送失败:", err)
+	} else {
+		log.Println("邮件发送成功")
+	}
+}
+
 func main() {
 	initDB()
 	defer db.Close()
 
-	//http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/home", homeHandler)
 	http.HandleFunc("/create", createPageHandler)
 	http.HandleFunc("/create/post", createHandler)
 	http.HandleFunc("/register", registerPageHandler)
 	http.HandleFunc("/register/post", registerHandler)
 	http.HandleFunc("/login", loginPageHandler)
 	http.HandleFunc("/login/auth", loginHandler)
+	http.HandleFunc("/publish", publishPageHandler)
+	http.HandleFunc("/publish/post", publishHandler)
+	http.HandleFunc("/comment/post", commentHandler) // 添加评论处理函数
 
 	fs := http.FileServer(http.Dir("."))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))

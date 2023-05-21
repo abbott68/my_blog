@@ -4,34 +4,94 @@
     <meta charset="UTF-8">
     <title>My Blog</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .posts-list {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .post {
+            margin-bottom: 20px;
+        }
+
+        .post h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .post p {
+            margin-bottom: 10px;
+        }
+
+        .post .login-status {
+            font-style: italic;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
 <nav>
     <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/create">Create new post</a></li>
+        <li>
+            <a href="/src/my_blog/templates/static">Home</a>
+        </li>
+        <li>
+            <a href="/create">Create new post</a>
+        </li>
         {{if not .IsLogin}}
-        <li><a href="/register">Register</a></li>
+        <li>
+            <a href="/register">Register</a>
+        </li>
         {{end}}
         {{if not .IsLogin}}
-        <li><a href="/login">Login</a></li>
+        <li>
+            <a href="/login">Login</a>
+        </li>
         {{else}}
-        <li><a href="/logout">Logout</a></li>
+        <li>
+            <a href="/logout">Logout</a>
+        </li>
         {{end}}
     </ul>
 </nav>
-
 <div class="posts-list">
     <h1>Blog Posts</h1>
     {{range .BlogPosts}}
     <div class="post">
         <h2>{{.Title}}</h2>
         <p>{{.Content}}</p>
-        {{if .User.IsLogin}}
-        <p>Is Login: Yes</p>
-        {{else}}
-        <p>Is Login: No</p>
-        {{end}}
+        <p class="login-status">Is Login: {{if .User.IsLogin}}Yes
+            {{else}}No{{end}}</p>
     </div>
     {{end}}
 </div>
